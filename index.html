@@ -1,5 +1,3 @@
-<project-root>
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -10,57 +8,79 @@
 </head>
 <body>
   <h1>Badminton Unforced Error Tracker</h1>
-  <div class="container">
-    <!-- Session setup form -->
-    <form id="sessionForm">
-      <label>Date: <input type="date" id="sessionDate" required></label>
-      <label>Match: <input type="text" id="sessionMatch" placeholder="Team A vs Team B" required></label>
-      <button type="submit">Start Recording</button>
-    </form>
 
-    <!-- Recording section: hidden until session starts -->
-    <div id="recordingSection" style="display:none">
-      <p>Recording for: <span id="currentSession"></span>
-        <button id="finishBtn">Finish Match</button>
-      </p>
-      <form id="errorForm">
-        <label>Set: <input type="number" id="set" name="set" min="1" max="5" required></label>
-        <label>Rally #: <input type="number" id="rally" name="rally" min="1" required></label>
-        <label>Error Type:
-          <select id="errorType" name="errorType" required>
-            <option value="Servefault">Servefault</option>
-            <option value="Net-drop">Net-drop</option>
-            <option value="Cross-court OOB">Cross-court OOB</option>
-            <option value="Smash in net">Smash in net</option>
-            <option value="Smash OOB">Smash OOB</option>
-            <option value="Lift too short">Lift too short</option>
-            <option value="Clear-out OOB">Clear-out OOB</option>
-            <option value="Tactical error">Tactical error</option>
-          </select>
-        </label>
-        <label>Zone:
-          <select id="zone" name="zone" required>
-            <option value="forehand-front">Forehand Front</option>
-            <option value="backhand-front">Backhand Front</option>
-            <option value="forehand-middle">Forehand Middle</option>
-            <option value="backhand-middle">Backhand Middle</option>
-            <option value="forehand-back">Forehand Rear</option>
-            <option value="backhand-back">Backhand Rear</option>
-          </select>
-        </label>
-        <button type="submit">Add Error</button>
+  <!-- Tab navigation -->
+  <nav class="tabs">
+    <button id="recordTabBtn" class="tab-btn active">Record Errors</button>
+    <button id="dataTabBtn" class="tab-btn">View Data</button>
+  </nav>
+
+  <div class="container">
+    <!-- Record Tab -->
+    <div id="recordTab">
+      <!-- Session setup form -->
+      <form id="sessionForm">
+        <label>Date:<input type="date" id="sessionDate" required></label>
+        <label>Match:<input type="text" id="sessionMatch" placeholder="Team A vs Team B" required></label>
+        <label>Player:<input type="text" id="sessionPlayer" placeholder="Player Name" required></label>
+        <button type="submit">Start Recording</button>
       </form>
+
+      <!-- Recording section: hidden until session starts -->
+      <div id="recordingSection" style="display:none">
+        <p>Recording for: <span id="currentSession"></span>
+          <button id="finishBtn">Finish Match</button>
+        </p>
+        <form id="errorForm">
+          <label>Set:<input type="number" id="set" min="1" max="5" required></label>
+          <label>Rally #:<input type="number" id="rally" min="1" required></label>
+          <label>Error Type:
+            <select id="errorType" required>
+              <option value="Servefault">Servefault</option>
+              <option value="Net-drop">Net-drop</option>
+              <option value="Cross-court OOB">Cross-court OOB</option>
+              <option value="Smash in net">Smash in net</option>
+              <option value="Smash OOB">Smash OOB</option>
+              <option value="Lift too short">Lift too short</option>
+              <option value="Clear-out OOB">Clear-out OOB</option>
+              <option value="Tactical error">Tactical error</option>
+            </select>
+          </label>
+          <label>Zone:
+            <select id="zone" required>
+              <option value="forehand-front">Forehand Front</option>
+              <option value="backhand-front">Backhand Front</option>
+              <option value="forehand-middle">Forehand Middle</option>
+              <option value="backhand-middle">Backhand Middle</option>
+              <option value="forehand-back">Forehand Rear</option>
+              <option value="backhand-back">Backhand Rear</option>
+            </select>
+          </label>
+          <button type="submit">Add Error</button>
+        </form>
+      </div>
+
+      <canvas id="courtCanvas" width="600" height="300"></canvas>
     </div>
 
-    <canvas id="courtCanvas" width="600" height="300"></canvas>
-
-    <h2>Logged Errors</h2>
-    <table id="errorTable">
-      <thead>
-        <tr><th>Date</th><th>Match</th><th>Set</th><th>Rally #</th><th>Type</th><th>Zone</th></tr>
-      </thead>
-      <tbody></tbody>
-    </table>
+    <!-- Data Tab -->
+    <div id="dataTab" style="display:none">
+      <h2>Logged Errors</h2>
+      <table id="errorTable">
+        <thead>
+          <tr>
+            <th>Date</th>
+            <th>Match</th>
+            <th>Player</th>
+            <th>Set</th>
+            <th>Rally #</th>
+            <th>Type</th>
+            <th>Zone</th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+    </div>
   </div>
 
   <script type="module" src="app.js"></script>
