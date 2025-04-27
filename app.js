@@ -9,7 +9,7 @@ import {
   serverTimestamp
 } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
-// Firebase config – replace with your values
+// Firebase config
 const firebaseConfig = {
   apiKey: "AIzaSyBWmf_VuollXXwIsgDjofi9ToTkfvDJc0M",
   authDomain: "bmatchtracker.firebaseapp.com",
@@ -21,7 +21,9 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 
-// DOM refs
+// DOM refs & tabs
+document.getElementById('recordTabBtn').addEventListener('click', () => switchTab('record'));
+document.getElementById('dataTabBtn').addEventListener('click', () => switchTab('data'));
 const sessionForm = document.getElementById('sessionForm');
 const recordingSection = document.getElementById('recordingSection');
 const currentSession = document.getElementById('currentSession');
@@ -33,118 +35,49 @@ const ctx = canvas.getContext('2d');
 let entries = [];
 let sessionDate = null;
 let sessionMatch = null;
+let sessionPlayer = null;
 
-// Court drawing with full boundaries and service lines
+function switchTab(tab) {
+  document.getElementById('recordTab').style.display = tab === 'record' ? '' : 'none';
+  document.getElementById('dataTab').style.display = tab === 'data' ? '' : 'none';
+  document.getElementById('recordTabBtn').classList.toggle('active', tab === 'record');
+  document.getElementById('dataTabBtn').classList.toggle('active', tab === 'data');
+  if(tab==='record') redraw();
+}
+
+// Draw court (same as before)
 function drawCourt() {
   const W = canvas.width, H = canvas.height;
-  ctx.clearRect(0, 0, W, H);
-  ctx.strokeStyle = '#333'; ctx.lineWidth = 2;
-  // Outer boundary (doubles)
-  ctx.strokeRect(0, 0, W, H);
-  // Singles sidelines
-  ctx.beginPath(); ctx.moveTo((W - W * (5.18/6.1)) / 2, 0);
-  ctx.lineTo((W - W * (5.18/6.1)) / 2, H);
-  ctx.moveTo(W - (W - W * (5.18/6.1)) / 2, 0);
-  ctx.lineTo(W - (W - W * (5.18/6.1)) / 2, H);
+  ctx.clearRect(0,0,W,H);
+  ctx.strokeStyle='#333'; ctx.lineWidth=2;
+  ctx.strokeRect(0,0,W,H);
+  const sidemargin=(W-W*(5.18/6.1))/2;
+  ctx.beginPath(); ctx.moveTo(sidemargin,0); ctx.lineTo(sidemargin,H);
+  ctx.moveTo(W-sidemargin,0); ctx.lineTo(W-sidemargin,H); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(0,H/2); ctx.lineTo(W,H/2); ctx.stroke();
+  const short=H*(1.98/13.4);
+  ctx.beginPath(); ctx.moveTo(0,short); ctx.lineTo(W,short);
+  ctx.moveTo(0,H-short); ctx.lineTo(W,H-short);
   ctx.stroke();
-  // Net line
-  ctx.beginPath(); ctx.moveTo(0, H/2); ctx.lineTo(W, H/2);
-  ctx.stroke();
-  // Short service lines
-  const s = H * 0.2, s2 = H * 0.8;
-  ctx.beginPath(); ctx.moveTo(0, s); ctx.lineTo(W, s);
-  ctx.moveTo(0, s2); ctx.lineTo(W, s2);
-  ctx.stroke();
-  // Center service line between s and s2
-  ctx.beginPath(); ctx.moveTo(W/2, s); ctx.lineTo(W/2, s2);
-  ctx.stroke();
-  // Zone labels
-  ctx.fillStyle = '#000'; ctx.font = '12px sans-serif';
-  const labels = {
-    'forehand-front': [W*0.75, H*0.1, 'FF'],
-    'backhand-front': [W*0.25, H*0.1, 'BF'],
-    'forehand-middle':[W*0.75, H*0.5, 'FM'],
-    'backhand-middle':[W*0.25, H*0.5, 'BM'],
-    'forehand-back': [W*0.75, H*0.9, 'FB'],
-    'backhand-back': [W*0.25, H*0.9, 'BB']
-  };
-  for (const key in labels) {
-    const [x,y,text] = labels[key];
-    ctx.fillText(text, x-10, y);
-  }
+  ctx.beginPath(); ctx.moveTo(W/2,short); ctx.lineTo(W/2,H-short); ctx.stroke();
+  ctx.fillStyle='#000'; ctx.font='12px sans-serif';
+  const labels={ 'forehand-front':[W*0.75,short/2,'Forehand Front'], 'backhand-front':[W*0.25,short/2,'Backhand Front'], 'forehand-middle':[W*0.75,H/2,'Forehand Middle'], 'backhand-middle':[W*0.25,H/2,'Backhand Middle'], 'forehand-back':[W*0.75,H-short/2,'Forehand Rear'], 'backhand-back':[W*0.25,H-short/2,'Backhand Rear'] };
+  for(const k in labels){const [x,y,t]=labels[k]; ctx.fillText(t,x-ctx.measureText(t).width/2,y);}
 }
-
-// Zone coordinate mapping for plotting
-const zoneCoords = {
-  'forehand-front': [canvas.width*0.75, canvas.height*0.25],
-  'backhand-front': [canvas.width*0.25, canvas.height*0.25],
-  'forehand-middle':[canvas.width*0.75, canvas.height*0.5],
-  'backhand-middle':[canvas.width*0.25, canvas.height*0.5],
-  'forehand-back': [canvas.width*0.75, canvas.height*0.75],
-  'backhand-back': [canvas.width*0.25, canvas.height*0.75]
-};
-
-// Redraw with errors
-function redraw() {
-  drawCourt();
-  entries.forEach(e => {
-    const [x,y] = zoneCoords[e.zone];
-    ctx.fillStyle = 'rgba(255,0,0,0.7)'; ctx.beginPath(); ctx.arc(x,y,10,0,2*Math.PI); ctx.fill();
-  });
-}
+const zoneCoords={ 'forehand-front':[canvas.width*0.75,canvas.height*0.2],'backhand-front':[canvas.width*0.25,canvas.height*0.2],'forehand-middle':[canvas.width*0.75,canvas.height*0.5],'backhand-middle':[canvas.width*0.25,canvas.height*0.5],'forehand-back':[canvas.width*0.75,canvas.height*0.8],'backhand-back':[canvas.width*0.25,canvas.height*0.8]};
+function redraw(){ drawCourt(); entries.forEach(e=>{const[x,y]=zoneCoords[e.zone];ctx.fillStyle='rgba(255,0,0,0.7)';ctx.beginPath();ctx.arc(x,y,10,0,2*Math.PI);ctx.fill();}); }
 
 drawCourt();
 
-// Load errors from Firestore
-async function loadEntries() {
-  const q = query(collection(db,'errors'), orderBy('timestamp'));
-  const snap = await getDocs(q);
-  entries = snap.docs.map(d => d.data());
-  tableBody.innerHTML = '';
-  entries.forEach(e => {
-    const row = document.createElement('tr');
-    ['date','match','set','rally','errorType','zone'].forEach(k => {
-      const td = document.createElement('td'); td.textContent = e[k]; row.appendChild(td);
-    });
-    tableBody.appendChild(row);
-  });
-  redraw();
-}
+// Firestore load
+async function loadEntries(){ const q=query(collection(db,'errors'),orderBy('timestamp')); const snap=await getDocs(q); entries=snap.docs.map(d=>d.data()); tableBody.innerHTML=''; entries.forEach(e=>{ const row=document.createElement('tr'); ['date','match','player','set','rally','errorType','zone'].forEach(k=>{const td=document.createElement('td'); td.textContent=e[k]; row.appendChild(td);} ); tableBody.appendChild(row);} ); redraw(); }
 
 // Session start
-sessionForm.addEventListener('submit', e => {
-  e.preventDefault();
-  sessionDate = document.getElementById('sessionDate').value;
-  sessionMatch = document.getElementById('sessionMatch').value;
-  currentSession.textContent = `${sessionDate} | ${sessionMatch}`;
-  sessionForm.style.display = 'none';
-  recordingSection.style.display = '';
-});
-// Finish match
-finishBtn.addEventListener('click', () => {
-  sessionDate = null; sessionMatch = null;
-  sessionForm.reset();
-  sessionForm.style.display = '';
-  recordingSection.style.display = 'none';
-});
-
-// Record error
-errorForm.addEventListener('submit', async e => {
-  e.preventDefault();
-  if (!sessionDate || !sessionMatch) return alert('Start a session first');
-  const entry = {
-    date: sessionDate,
-    match: sessionMatch,
-    set: document.getElementById('set').value,
-    rally: document.getElementById('rally').value,
-    errorType: document.getElementById('errorType').value,
-    zone: document.getElementById('zone').value,
-    timestamp: serverTimestamp()
-  };
-  await addDoc(collection(db,'errors'), entry);
-  errorForm.reset();
-  loadEntries();
-});
+sessionForm.addEventListener('submit',e=>{ e.preventDefault(); sessionDate=document.getElementById('sessionDate').value; sessionMatch=document.getElementById('sessionMatch').value; sessionPlayer=document.getElementById('sessionPlayer').value; currentSession.textContent=`${sessionDate} | ${sessionMatch} | ${sessionPlayer}`; sessionForm.style.display='none'; recordingSection.style.display=''; });
+// Finish session
+finishBtn.addEventListener('click',()=>{ sessionDate=null; sessionMatch=null; sessionPlayer=null; sessionForm.reset(); sessionForm.style.display=''; recordingSection.style.display='none'; });
+// Add error
+errorForm.addEventListener('submit',async e=>{ e.preventDefault(); if(!sessionDate||!sessionMatch||!sessionPlayer) return alert('Start a session first'); const entry={ date:sessionDate, match:sessionMatch, player:sessionPlayer, set:document.getElementById('set').value, rally:document.getElementById('rally').value, errorType:document.getElementById('errorType').value, zone:document.getElementById('zone').value, timestamp:serverTimestamp() }; await addDoc(collection(db,'errors'),entry); errorForm.reset(); loadEntries(); });
 
 // Initial load
 loadEntries();
