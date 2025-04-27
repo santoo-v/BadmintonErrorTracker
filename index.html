@@ -21,7 +21,7 @@
     <!-- Recording section: hidden until session starts -->
     <div id="recordingSection" style="display:none">
       <p>Recording for: <span id="currentSession"></span>
-        <button id="finishBtn" style="margin-left:1rem;">Finish Match</button>
+        <button id="finishBtn">Finish Match</button>
       </p>
       <form id="errorForm">
         <label>Set: <input type="number" id="set" name="set" min="1" max="5" required></label>
@@ -40,12 +40,12 @@
         </label>
         <label>Zone:
           <select id="zone" name="zone" required>
-            <option value="front-left">Front Left</option>
-            <option value="front-right">Front Right</option>
-            <option value="mid-left">Mid Left</option>
-            <option value="mid-right">Mid Right</option>
-            <option value="back-left">Back Left</option>
-            <option value="back-right">Back Right</option>
+            <option value="forehand-front">Forehand Front</option>
+            <option value="backhand-front">Backhand Front</option>
+            <option value="forehand-middle">Forehand Middle</option>
+            <option value="backhand-middle">Backhand Middle</option>
+            <option value="forehand-back">Forehand Rear</option>
+            <option value="backhand-back">Backhand Rear</option>
           </select>
         </label>
         <button type="submit">Add Error</button>
