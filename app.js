@@ -1,3 +1,4 @@
+// Import Firebase modules
 import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
 import {
   getFirestore,
@@ -9,7 +10,7 @@ import {
   serverTimestamp
 } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
-// Firebase config
+// Firebase configuration
 const firebaseConfig = {
   apiKey: "AIzaSyBWmf_VuollXXwIsgDjofi9ToTkfvDJc0M",
   authDomain: "bmatchtracker.firebaseapp.com",
@@ -19,7 +20,7 @@ const firebaseConfig = {
   appId: "1:188991740256:web:6b5b9d0c7804766266a605"
 };
 
-// Initialize Firebase
+// Initialize Firebase and Firestore
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 
@@ -40,28 +41,28 @@ let sessionDate = null;
 let sessionMatch = null;
 let sessionPlayer = null;
 
-// Tab switching
+// Switch between Record and Data tabs
 function switchTab(tab) {
   document.getElementById('recordTab').style.display = tab === 'record' ? '' : 'none';
   document.getElementById('dataTab').style.display = tab === 'data' ? '' : 'none';
   recordTabBtn.classList.toggle('active', tab === 'record');
   dataTabBtn.classList.toggle('active', tab === 'data');
-  if (tab === 'record') {
-    redraw();
-  }
+  if (tab === 'record') redraw();
 }
 recordTabBtn.addEventListener('click', () => switchTab('record'));
 dataTabBtn.addEventListener('click', () => switchTab('data'));
 
-// Draw badminton court (13.4m x 6.1m)
+// Draw badminton court (13.4m x 6.1m ratio)
 function drawCourt() {
   const W = canvas.width;
   const H = canvas.height;
   ctx.clearRect(0, 0, W, H);
   ctx.strokeStyle = '#333';
   ctx.lineWidth = 2;
+
   // Outer boundary
   ctx.strokeRect(0, 0, W, H);
+
   // Singles sidelines
   const sidemargin = (W - (W * (5.18 / 6.1))) / 2;
   ctx.beginPath();
@@ -70,11 +71,13 @@ function drawCourt() {
   ctx.moveTo(W - sidemargin, 0);
   ctx.lineTo(W - sidemargin, H);
   ctx.stroke();
+
   // Net line
   ctx.beginPath();
   ctx.moveTo(0, H / 2);
   ctx.lineTo(W, H / 2);
   ctx.stroke();
+
   // Short service lines (1.98m from net each side)
   const short = (1.98 / 13.4) * H;
   ctx.beginPath();
@@ -83,11 +86,13 @@ function drawCourt() {
   ctx.moveTo(0, H / 2 + short);
   ctx.lineTo(W, H / 2 + short);
   ctx.stroke();
+
   // Center service line
   ctx.beginPath();
   ctx.moveTo(W / 2, H / 2 - short);
   ctx.lineTo(W / 2, H / 2 + short);
   ctx.stroke();
+
   // Zone labels
   ctx.fillStyle = '#000';
   ctx.font = '12px sans-serif';
