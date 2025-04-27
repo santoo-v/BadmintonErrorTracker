@@ -8,42 +8,50 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Badminton Error Tracker</title>
   <link rel="stylesheet" href="style.css">
-  <!-- Firebase SDKs -->
-  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
 </head>
 <body>
   <h1>Badminton Unforced Error Tracker</h1>
   <div class="container">
-    <form id="errorForm">
-      <label>Date: <input type="date" id="date" required></label>
-      <label>Match: <input type="text" id="match" placeholder="Team A vs Team B" required></label>
-      <label>Set: <input type="number" id="set" min="1" max="5" required></label>
-      <label>Rally #: <input type="number" id="rally" min="1" required></label>
-      <label>Error Type:
-        <select id="errorType" required>
-          <option value="Servefault">Servefault</option>
-          <option value="Net-drop">Net-drop</option>
-          <option value="Cross-court OOB">Cross-court OOB</option>
-          <option value="Smash in net">Smash in net</option>
-          <option value="Smash OOB">Smash OOB</option>
-          <option value="Lift too short">Lift too short</option>
-          <option value="Clear-out OOB">Clear-out OOB</option>
-          <option value="Tactical error">Tactical error</option>
-        </select>
-      </label>
-      <label>Zone:
-        <select id="zone" required>
-          <option value="front-left">Front Left</option>
-          <option value="front-right">Front Right</option>
-          <option value="mid-left">Mid Left</option>
-          <option value="mid-right">Mid Right</option>
-          <option value="back-left">Back Left</option>
-          <option value="back-right">Back Right</option>
-        </select>
-      </label>
-      <button type="submit">Add Error</button>
+    <!-- Session setup form -->
+    <form id="sessionForm">
+      <label>Date: <input type="date" id="sessionDate" required></label>
+      <label>Match: <input type="text" id="sessionMatch" placeholder="Team A vs Team B" required></label>
+      <button type="submit">Start Recording</button>
     </form>
+
+    <!-- Recording section: hidden until session starts -->
+    <div id="recordingSection" style="display:none">
+      <p>Recording for: <span id="currentSession"></span>
+        <button id="finishBtn" style="margin-left:1rem;">Finish Match</button>
+      </p>
+      <form id="errorForm">
+        <label>Set: <input type="number" id="set" name="set" min="1" max="5" required></label>
+        <label>Rally #: <input type="number" id="rally" name="rally" min="1" required></label>
+        <label>Error Type:
+          <select id="errorType" name="errorType" required>
+            <option value="Servefault">Servefault</option>
+            <option value="Net-drop">Net-drop</option>
+            <option value="Cross-court OOB">Cross-court OOB</option>
+            <option value="Smash in net">Smash in net</option>
+            <option value="Smash OOB">Smash OOB</option>
+            <option value="Lift too short">Lift too short</option>
+            <option value="Clear-out OOB">Clear-out OOB</option>
+            <option value="Tactical error">Tactical error</option>
+          </select>
+        </label>
+        <label>Zone:
+          <select id="zone" name="zone" required>
+            <option value="front-left">Front Left</option>
+            <option value="front-right">Front Right</option>
+            <option value="mid-left">Mid Left</option>
+            <option value="mid-right">Mid Right</option>
+            <option value="back-left">Back Left</option>
+            <option value="back-right">Back Right</option>
+          </select>
+        </label>
+        <button type="submit">Add Error</button>
+      </form>
+    </div>
 
     <canvas id="courtCanvas" width="600" height="300"></canvas>
 
@@ -56,6 +64,6 @@
     </table>
   </div>
 
-  <script src="app.js"></script>
+  <script type="module" src="app.js"></script>
 </body>
 </html>
