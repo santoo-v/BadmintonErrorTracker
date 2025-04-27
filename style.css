@@ -11,6 +11,12 @@ h1 { text-align: center; }
 form { display: flex; flex-wrap: wrap; gap: 0.5rem; background: #fff; padding: 1rem; border-radius: 4px; }
 form label { display: flex; flex-direction: column; flex: 1 1 150px; }
 #finishBtn { margin-left: 1rem; }
-canvas { border: 2px solid #333; background: #e5e5e5; width: 100%; height: auto; margin-top: 1rem; }
+canvas {
+  border: 2px solid #333;
+  background: #e5e5e5;
+  width: 100%;       /* fill container width */
+  height: auto;      /* preserve intrinsic ratio */
+  margin-top: 1rem;
+}
 table { width: 100%; border-collapse: collapse; background: #fff; }
 table th, table td { border: 1px solid #ccc; padding: 0.5rem; text-align: center; }
