@@ -1,3 +1,4 @@
+<!-- index.html -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -22,14 +23,14 @@
         <label>Date: <input type="date" id="sessionDate" required></label>
         <label>Match: <input type="text" id="sessionMatch" placeholder="Team A vs Team B" required></label>
         <label>Player: <input type="text" id="sessionPlayer" placeholder="Player Name" required></label>
-        <button type="submit">Start Recording</button>
+        <button type="submit">Start</button>
       </form>
 
       <div id="recordingSection" style="display:none">
-        <p>
-          Recording for: <span id="currentSession"></span>
-          <button id="finishBtn">Finish Match</button>
-        </p>
+        <p>Recording for: <span id="currentSession"></span> <button id="finishBtn">Finish</button></p>
+        <p>Select the court area by clicking on the court below:</p>
+        <canvas id="courtCanvas" width="610" height="280"></canvas>
+
         <form id="errorForm">
           <label>Set: <input type="number" id="set" min="1" max="5" required></label>
           <label>Rally #: <input type="number" id="rally" min="1" required></label>
@@ -45,33 +46,17 @@
               <option>Tactical error</option>
             </select>
           </label>
-          <label>Zone:
-            <select id="zone" required>
-              <option value="forehand-front">Forehand Front</option>
-              <option value="backhand-front">Backhand Front</option>
-              <option value="forehand-middle">Forehand Middle</option>
-              <option value="backhand-middle">Backhand Middle</option>
-              <option value="forehand-back">Forehand Rear</option>
-              <option value="backhand-back">Backhand Rear</option>
-            </select>
-          </label>
+          <p>Selected cell: <strong><span id="selectedZone">None</span></strong></p>
           <button type="submit">Add Error</button>
         </form>
       </div>
-
-      <!-- Canvas -->
-      <canvas id="courtCanvas" width="610" height="280"></canvas>
     </div>
 
     <!-- Data Tab -->
     <div id="dataTab" style="display:none">
       <h2>Logged Errors</h2>
       <table id="errorTable">
-        <thead>
-          <tr>
-            <th>Date</th><th>Match</th><th>Player</th><th>Set</th><th>Rally #</th><th>Type</th><th>Zone</th>
-          </tr>
-        </thead>
+        <thead><tr><th>Date</th><th>Match</th><th>Player</th><th>Set</th><th>Rally</th><th>Error</th><th>Cell</th></tr></thead>
         <tbody></tbody>
       </table>
     </div>
