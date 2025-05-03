@@ -1,4 +1,3 @@
-// Import Firebase modules
 import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
 import {
   getFirestore,
@@ -10,7 +9,6 @@ import {
   serverTimestamp
 } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
-// Firebase configuration
 const firebaseConfig = {
   apiKey: "AIzaSyBWmf_VuollXXwIsgDjofi9ToTkfvDJc0M",
   authDomain: "bmatchtracker.firebaseapp.com",
@@ -20,11 +18,9 @@ const firebaseConfig = {
   appId: "1:188991740256:web:6b5b9d0c7804766266a605"
 };
 
-// Initialize Firebase
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 
-// DOM references
 const recordTabBtn = document.getElementById('recordTabBtn');
 const dataTabBtn   = document.getElementById('dataTabBtn');
 const sessionForm  = document.getElementById('sessionForm');
@@ -36,13 +32,20 @@ const tableBody    = document.querySelector('#errorTable tbody');
 const canvas       = document.getElementById('courtCanvas');
 const ctx          = canvas.getContext('2d');
 const selZoneSpan  = document.getElementById('selectedZone');
+const addErrorBtn  = document.getElementById('addErrorBtn');
 
-// State variables
+const courtImg = new Image();
+courtImg.src = 'BadmintonCourt.png';
+
 let entries = [];
-let sessionDate, sessionMatch, sessionPlayer, selZone = null;
-const ROWS = 3, COLS = 6;
+let sessionDate, sessionMatch, sessionPlayer, sessionSet, selZone = null;
+const ROWS = 8, COLS = 5;
 
-// Tab switching
+document.addEventListener('DOMContentLoaded', () => {
+  const today = new Date().toISOString().split('T')[0];
+  document.getElementById('sessionDate').value = today;
+});
+
 function switchTab(tab) {
   document.getElementById('recordTab').style.display = tab === 'record' ? '' : 'none';
   document.getElementById('dataTab').style.display   = tab === 'data'   ? '' : 'none';
@@ -50,53 +53,30 @@ function switchTab(tab) {
   dataTabBtn.classList.toggle('active',    tab === 'data');
   if (tab === 'record') drawGrid();
 }
-recordTabBtn.addEventListener('click', () => switchTab('record'));
-dataTabBtn.addEventListener('click', () => switchTab('data'));
+recordTabBtn.onclick = () => switchTab('record');
+dataTabBtn.onclick   = () => switchTab('data');
 
-// Draw court lines
-function drawCourt() {
-  const W = canvas.width, H = canvas.height;
-  ctx.clearRect(0, 0, W, H);
-  ctx.strokeStyle = '#333'; ctx.lineWidth = 2;
-
-  // Outer boundary (doubles)
-  ctx.strokeRect(0, 0, W, H);
-  // Singles sidelines
-  const singleOffset = (W - (5.18/6.1)*W) / 2;
-  ctx.beginPath();
-  ctx.moveTo(singleOffset, 0); ctx.lineTo(singleOffset, H);
-  ctx.moveTo(W - singleOffset, 0); ctx.lineTo(W - singleOffset, H);
-  ctx.stroke();
-  // Net
-  ctx.beginPath(); ctx.moveTo(0, H/2); ctx.lineTo(W, H/2); ctx.stroke();
-  // Short service lines (1.98m from net)
-  const short = (1.98/13.4) * H;
-  ctx.beginPath();
-  ctx.moveTo(0, H/2 - short); ctx.lineTo(W, H/2 - short);
-  ctx.moveTo(0, H/2 + short); ctx.lineTo(W, H/2 + short);
-  ctx.stroke();
-}
-
-// Draw grid and selection highlight
 function drawGrid() {
-  drawCourt();
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  ctx.drawImage(courtImg, 0, 0, canvas.width, canvas.height);
   const W = canvas.width, H = canvas.height;
-  ctx.strokeStyle = '#555'; ctx.lineWidth = 1;
   const cellW = W / COLS, cellH = H / ROWS;
+  ctx.strokeStyle = '#ff000080';
   for (let i = 0; i <= COLS; i++) {
     ctx.beginPath(); ctx.moveTo(i * cellW, 0); ctx.lineTo(i * cellW, H); ctx.stroke();
   }
   for (let j = 0; j <= ROWS; j++) {
     ctx.beginPath(); ctx.moveTo(0, j * cellH); ctx.lineTo(W, j * cellH); ctx.stroke();
   }
-  if (selZone != null) {
+  if (selZone !== null) {
     const col = selZone % COLS, row = Math.floor(selZone / COLS);
-    ctx.fillStyle = 'rgba(255,0,0,0.3)';
+    ctx.fillStyle = 'rgba(255,0,0,0.25)';
     ctx.fillRect(col * cellW, row * cellH, cellW, cellH);
   }
 }
 
-// Handle canvas clicks
+courtImg.onload = () => drawGrid();
+
 canvas.addEventListener('click', e => {
   const rect = canvas.getBoundingClientRect();
   const x = e.clientX - rect.left, y = e.clientY - rect.top;
@@ -104,10 +84,10 @@ canvas.addEventListener('click', e => {
   const col = Math.floor(x / cellW), row = Math.floor(y / cellH);
   selZone = row * COLS + col;
   selZoneSpan.textContent = `R${row+1}C${col+1}`;
+  addErrorBtn.disabled = false;
   drawGrid();
 });
 
-// Load entries from Firestore
 async function loadEntries() {
   const q = query(collection(db, 'errors'), orderBy('timestamp'));
   const snap = await getDocs(q);
@@ -115,33 +95,35 @@ async function loadEntries() {
   tableBody.innerHTML = '';
   entries.forEach(e => {
     const tr = document.createElement('tr');
-    ['date','match','player','set','rally','errorType','zone'].forEach(k => {
+    ['date','match','player','set','errorType','zone'].forEach(k => {
       const td = document.createElement('td'); td.textContent = e[k]; tr.appendChild(td);
     });
     tableBody.appendChild(tr);
   });
 }
 
-// Start session
 sessionForm.onsubmit = e => {
   e.preventDefault();
   sessionDate   = document.getElementById('sessionDate').value;
   sessionMatch  = document.getElementById('sessionMatch').value;
   sessionPlayer = document.getElementById('sessionPlayer').value;
-  currSess.textContent = `${sessionDate} | ${sessionMatch} | ${sessionPlayer}`;
-  sessionForm.style.display  = 'none';
-  recSection.style.display    = 'flex';
+  sessionSet    = document.getElementById('sessionSet').value;
+  currSess.textContent = `${sessionDate} | ${sessionMatch} | ${sessionPlayer} | Set ${sessionSet}`;
+  sessionForm.style.display = 'none';
+  recSection.style.display = 'flex';
   drawGrid();
 };
 
-// Finish session
 finishBtn.onclick = () => {
-  sessionDate = sessionMatch = sessionPlayer = selZone = null;
-  sessionForm.reset(); sessionForm.style.display = 'flex'; recSection.style.display = 'none'; selZoneSpan.textContent = 'None';
+  sessionDate = sessionMatch = sessionPlayer = sessionSet = selZone = null;
+  sessionForm.reset();
+  sessionForm.style.display = 'flex';
+  recSection.style.display = 'none';
+  selZoneSpan.textContent = 'None';
+  addErrorBtn.disabled = true;
   loadEntries();
 };
 
-// Add error
 errorForm.onsubmit = async e => {
   e.preventDefault();
   if (!sessionDate || selZone === null) return alert('Select a court cell');
@@ -149,16 +131,18 @@ errorForm.onsubmit = async e => {
     date: sessionDate,
     match: sessionMatch,
     player: sessionPlayer,
-    set: document.getElementById('set').value,
-    rally: document.getElementById('rally').value,
+    set: sessionSet,
     errorType: document.getElementById('errorType').value,
     zone: `R${Math.floor(selZone/COLS)+1}C${selZone%COLS+1}`,
     timestamp: serverTimestamp()
   };
   await addDoc(collection(db, 'errors'), entry);
-  errorForm.reset(); selZone = null; selZoneSpan.textContent = 'None';
-  drawGrid(); loadEntries();
+  errorForm.reset();
+  selZone = null;
+  selZoneSpan.textContent = 'None';
+  addErrorBtn.disabled = true;
+  drawGrid();
+  loadEntries();
 };
 
-// Initial load
 loadEntries();

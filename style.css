@@ -4,9 +4,13 @@ h1 { text-align:center; }
 .tab-btn { padding:.5rem 1rem; margin:0 .5rem; border:none; background:#ddd; cursor:pointer; border-radius:4px; }
 .tab-btn.active { background:#bbb; font-weight:bold; }
 .container { max-width:800px; margin:auto; }
+.grid-form { display:flex; gap: 1rem; align-items: stretch; flex-wrap: wrap;}
+.form-grid {display: grid; grid-template-columns: 1fr 1fr; grid-template-rows: auto auto; gap: 0.5rem; flex: 1 1 auto;}
+.grid-form label {display: flex; flex-direction: column; font-weight: bold;}
+#startBtn  {align-self: stretch; padding: 1.5rem 2rem; font-size: 1.2rem; background: #28a745; color: white; border: none; border-radius: 6px; cursor: pointer;}
 form, #recordingSection { display:flex; flex-wrap:wrap; gap:.5rem; background:#fff; padding:1rem; border-radius:4px; }
 form label, #recordingSection p { flex:1 1 150px; }
-#finishBtn { margin-left:1rem; }
-canvas { border:2px solid #333; width:100%; height:auto; margin-top:.5rem; }
+#finishBtn { margin-left:1rem; background: #28a745; color: white; }
+canvas { border:2px solid #333; display:block; margin: 1rem auto; }
 table { width:100%; border-collapse:collapse; background:#fff; margin-top:1rem; }
 table th, table td { border:1px solid #ccc; padding:.5rem; text-align:center; }

@@ -7,33 +7,35 @@
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <h1>Badminton Unforced Error Tracker</h1>
+  <h1>Badminton Match Tracker</h1>
 
   <!-- Tabs -->
   <nav class="tabs">
-    <button id="recordTabBtn" class="tab-btn active">Record Errors</button>
-    <button id="dataTabBtn" class="tab-btn">View Data</button>
+    <button id="recordTabBtn" class="tab-btn active">Record Match</button>
+    <button id="dataTabBtn" class="tab-btn">View past records</button>
   </nav>
 
   <div class="container">
     <!-- Record Tab -->
     <div id="recordTab">
-      <form id="sessionForm">
-        <label>Date: <input type="date" id="sessionDate" required></label>
-        <label>Match: <input type="text" id="sessionMatch" placeholder="Team A vs Team B" required></label>
-        <label>Player: <input type="text" id="sessionPlayer" placeholder="Player Name" required></label>
-        <button type="submit">Start</button>
+      <form id="sessionForm" class="grid-form">
+        <div class="form-grid">
+          <label>Date: <input type="date" id="sessionDate" required></label>
+          <label>Match: <input type="text" id="sessionMatch" required></label>
+          <label>Player: <input type="text" id="sessionPlayer" required></label>
+          <label>Set #: <input type="number" id="sessionSet" min="1" required></label>
+        </div>
+        <button type="submit" id="startBtn">Start</button>
       </form>
+      
+      <div id="recordingSection" style="display:none; flex-direction: column; align-items: center;">
+        <div style="text-align:center;">
+          <p>Recording for: <span id="currentSession"></span></p>
+          <button id="finishBtn">Finish</button>
+        </div>
 
-      <div id="recordingSection" style="display:none">
-        <p>Recording for: <span id="currentSession"></span> <button id="finishBtn">Finish</button></p>
-        <p>Select the court area by clicking on the court below:</p>
-        <canvas id="courtCanvas" width="610" height="280"></canvas>
-
-        <form id="errorForm">
-          <label>Set: <input type="number" id="set" min="1" max="5" required></label>
-          <label>Rally #: <input type="number" id="rally" min="1" required></label>
-          <label>Error Type:
+        <form id="errorForm" style="margin-top: 1rem; text-align:center; display: flex; gap: 1rem; align-items: center; justify-content: center; flex-wrap: wrap;">
+          <label style="display:block;">Error Type:
             <select id="errorType" required>
               <option>Servefault</option>
               <option>Net-drop</option>
@@ -45,19 +47,26 @@
               <option>Tactical error</option>
             </select>
           </label>
-          <p>Selected cell: <strong><span id="selectedZone">None</span></strong></p>
-          <button type="submit">Add Error</button>
+          <button type="submit" id="addErrorBtn" disabled>Add Error</button>
         </form>
+
+        <p style="text-align:center;">Click on the court to mark error zone:</p>
+        <canvas id="courtCanvas" width="384" height="768"></canvas>
+
+        <div style="text-align:center;">
+          <p>Selected cell: <strong><span id="selectedZone">None</span></strong></p>
+          <button type="submit" form="errorForm">Add Error</button>
+        </div>
       </div>
     </div>
 
     <!-- Data Tab -->
     <div id="dataTab" style="display:none">
-      <h2>Logged Errors</h2>
+      <h2>Logged Match data</h2>
       <table id="errorTable">
         <thead>
           <tr>
-            <th>Date</th><th>Match</th><th>Player</th><th>Set</th><th>Rally</th><th>Error</th><th>Cell</th>
+            <th>Date</th><th>Match</th><th>Player</th><th>Set</th><th>Error</th><th>Cell</th>
           </tr>
         </thead>
         <tbody></tbody>
