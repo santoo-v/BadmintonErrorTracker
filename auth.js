@@ -61,6 +61,7 @@ onAuthStateChanged(auth, (user) => {
     mainApp.style.display = "block";
     window.currentUser = user;
     document.getElementById('createProfileBtn').style.display = 'inline-block';
+    loadPlayerProfiles(); 
   } else {
     userInfo.textContent = "Not logged in";
     loginBtn.style.display = "inline";
