@@ -1,41 +1,48 @@
-<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Badminton Error Tracker</title>
+  <title>Badminton Match Tracker</title>
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
   <h1>Badminton Match Tracker</h1>
 
+  <!-- Auth Controls -->
+  <div id="authControls" class="auth-controls">
+    <span id="userInfo"></span>
+    <button id="loginBtn">Login with Google</button>
+    <button id="logoutBtn" class="danger" style="display:none;">Logout</button>
+  </div>
+
   <!-- Tabs -->
   <nav class="tabs">
-    <button id="recordTabBtn" class="tab-btn active">Record Match</button>
-    <button id="dataTabBtn" class="tab-btn">View past records</button>
+    <button id="recordTabBtn" class="tab-btn active">Record Errors</button>
+    <button id="dataTabBtn" class="tab-btn">View Data</button>
   </nav>
 
-  <div class="container">
+  <div class="container" id="mainApp" style="display:none;">
     <!-- Record Tab -->
     <div id="recordTab">
       <form id="sessionForm" class="grid-form">
         <div class="form-grid">
           <label>Date: <input type="date" id="sessionDate" required></label>
-          <label>Match: <input type="text" id="sessionMatch" required></label>
-          <label>Player: <input type="text" id="sessionPlayer" required></label>
+          <label>Match: <input type="text" id="sessionMatch" placeholder="Team A vs Team B" required></label>
+          <label>Player: <input type="text" id="sessionPlayer" placeholder="Player Name" required></label>
           <label>Set #: <input type="number" id="sessionSet" min="1" required></label>
         </div>
         <button type="submit" id="startBtn">Start</button>
       </form>
-      
-      <div id="recordingSection" style="display:none; flex-direction: column; align-items: center;">
-        <div style="text-align:center;">
+
+      <div id="recordingSection" class="recording-section">
+        <div class="recording-header">
           <p>Recording for: <span id="currentSession"></span></p>
           <button id="finishBtn">Finish</button>
+          <button id="deleteAllBtn" class="danger">Delete All Records</button>
         </div>
 
-        <form id="errorForm" style="margin-top: 1rem; text-align:center; display: flex; gap: 1rem; align-items: center; justify-content: center; flex-wrap: wrap;">
-          <label style="display:block;">Error Type:
+        <form id="errorForm" class="error-form">
+          <label>Error Type:
             <select id="errorType" required>
               <option>Servefault</option>
               <option>Net-drop</option>
@@ -50,19 +57,18 @@
           <button type="submit" id="addErrorBtn" disabled>Add Error</button>
         </form>
 
-        <p style="text-align:center;">Click on the court to mark error zone:</p>
+        <p class="court-instruction">Click on the court to mark error zone:</p>
         <canvas id="courtCanvas" width="384" height="768"></canvas>
 
-        <div style="text-align:center;">
+        <div class="zone-display">
           <p>Selected cell: <strong><span id="selectedZone">None</span></strong></p>
-          <button type="submit" form="errorForm">Add Error</button>
         </div>
       </div>
     </div>
 
     <!-- Data Tab -->
     <div id="dataTab" style="display:none">
-      <h2>Logged Match data</h2>
+      <h2>Logged Errors</h2>
       <table id="errorTable">
         <thead>
           <tr>
@@ -74,6 +80,7 @@
     </div>
   </div>
 
+  <script type="module" src="auth.js"></script>
   <script type="module" src="app.js"></script>
 </body>
 </html>

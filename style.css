@@ -1,16 +1,114 @@
-body { font-family: Arial, sans-serif; margin:0; padding:1rem; background:#f4f4f4; }
-h1 { text-align:center; }
-.tabs { display:flex; justify-content:center; margin-bottom:1rem; }
-.tab-btn { padding:.5rem 1rem; margin:0 .5rem; border:none; background:#ddd; cursor:pointer; border-radius:4px; }
-.tab-btn.active { background:#bbb; font-weight:bold; }
-.container { max-width:800px; margin:auto; }
-.grid-form { display:flex; gap: 1rem; align-items: stretch; flex-wrap: wrap;}
-.form-grid {display: grid; grid-template-columns: 1fr 1fr; grid-template-rows: auto auto; gap: 0.5rem; flex: 1 1 auto;}
-.grid-form label {display: flex; flex-direction: column; font-weight: bold;}
-#startBtn  {align-self: stretch; padding: 1.5rem 2rem; font-size: 1.2rem; background: #28a745; color: white; border: none; border-radius: 6px; cursor: pointer;}
-form, #recordingSection { display:flex; flex-wrap:wrap; gap:.5rem; background:#fff; padding:1rem; border-radius:4px; }
-form label, #recordingSection p { flex:1 1 150px; }
-#finishBtn { margin-left:1rem; background: #28a745; color: white; }
-canvas { border:2px solid #333; display:block; margin: 1rem auto; }
-table { width:100%; border-collapse:collapse; background:#fff; margin-top:1rem; }
-table th, table td { border:1px solid #ccc; padding:.5rem; text-align:center; }
+body {
+    font-family: Arial, sans-serif;
+    margin: 1rem;
+    background: #f8f9fa;
+    color: #333;
+  }
+  
+  h1 {
+    text-align: center;
+    color: #2c3e50;
+  }
+  
+  .auth-controls {
+    text-align: right;
+    margin-bottom: 1rem;
+  }
+  
+  .container {
+    max-width: 1000px;
+    margin: auto;
+  }
+  
+  .tabs {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 1rem;
+  }
+  
+  .tab-btn {
+    padding: 0.5rem 1rem;
+    margin: 0 0.5rem;
+    background: #eee;
+    border: none;
+    cursor: pointer;
+    font-weight: bold;
+  }
+  
+  .tab-btn.active {
+    background: #007bff;
+    color: white;
+  }
+  
+  .grid-form {
+    display: flex;
+    gap: 1rem;
+    align-items: stretch;
+    flex-wrap: wrap;
+    margin-bottom: 1rem;
+  }
+  
+  .form-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.5rem;
+    flex: 1 1 auto;
+  }
+  
+  .grid-form label {
+    display: flex;
+    flex-direction: column;
+    font-weight: bold;
+  }
+  
+  button {
+    padding: 0.5rem 1rem;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+  }
+  
+  button.danger {
+    background-color: #c0392b;
+    color: white;
+  }
+  
+  .recording-section {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-top: 1rem;
+  }
+  
+  .recording-header {
+    text-align: center;
+    margin-bottom: 1rem;
+  }
+  
+  .error-form {
+    display: flex;
+    gap: 1rem;
+    align-items: center;
+    justify-content: center;
+    flex-wrap: wrap;
+    margin-bottom: 1rem;
+  }
+  
+  .court-instruction {
+    text-align: center;
+    font-style: italic;
+    margin-bottom: 0.5rem;
+    color: #555;
+    font-size: 0.95rem;
+  }
+  
+  .zone-display {
+    text-align: center;
+    margin-top: 0.5rem;
+  }
+  
+  #courtCanvas {
+    border: 1px solid #999;
+    background: #ffffff;
+  }
+  

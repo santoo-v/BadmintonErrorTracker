@@ -6,6 +6,8 @@ import {
   orderBy,
   getDocs,
   addDoc,
+  deleteDoc,
+  doc,
   serverTimestamp
 } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
@@ -27,6 +29,7 @@ const sessionForm  = document.getElementById('sessionForm');
 const recSection   = document.getElementById('recordingSection');
 const currSess     = document.getElementById('currentSession');
 const finishBtn    = document.getElementById('finishBtn');
+const deleteAllBtn = document.getElementById('deleteAllBtn');
 const errorForm    = document.getElementById('errorForm');
 const tableBody    = document.querySelector('#errorTable tbody');
 const canvas       = document.getElementById('courtCanvas');
@@ -40,11 +43,6 @@ courtImg.src = 'BadmintonCourt.png';
 let entries = [];
 let sessionDate, sessionMatch, sessionPlayer, sessionSet, selZone = null;
 const ROWS = 8, COLS = 5;
-
-document.addEventListener('DOMContentLoaded', () => {
-  const today = new Date().toISOString().split('T')[0];
-  document.getElementById('sessionDate').value = today;
-});
 
 function switchTab(tab) {
   document.getElementById('recordTab').style.display = tab === 'record' ? '' : 'none';
@@ -89,9 +87,12 @@ canvas.addEventListener('click', e => {
 });
 
 async function loadEntries() {
+  if (!window.currentUser) return;
   const q = query(collection(db, 'errors'), orderBy('timestamp'));
   const snap = await getDocs(q);
-  entries = snap.docs.map(d => d.data());
+  entries = snap.docs
+    .map(doc => ({ id: doc.id, ...doc.data() }))
+    .filter(e => e.uid === window.currentUser.uid);
   tableBody.innerHTML = '';
   entries.forEach(e => {
     const tr = document.createElement('tr');
@@ -101,6 +102,20 @@ async function loadEntries() {
     tableBody.appendChild(tr);
   });
 }
+
+deleteAllBtn.onclick = async () => {
+  if (!confirm('Are you sure you want to delete ALL records?')) return;
+  const q = query(collection(db, 'errors'));
+  const snap = await getDocs(q);
+  for (const docSnap of snap.docs) {
+    const data = docSnap.data();
+    if (data.uid === window.currentUser?.uid) {
+      await deleteDoc(doc(db, 'errors', docSnap.id));
+    }
+  }
+  loadEntries();
+  alert('All your records have been deleted.');
+};
 
 sessionForm.onsubmit = e => {
   e.preventDefault();
@@ -128,6 +143,7 @@ errorForm.onsubmit = async e => {
   e.preventDefault();
   if (!sessionDate || selZone === null) return alert('Select a court cell');
   const entry = {
+    uid: window.currentUser.uid, 
     date: sessionDate,
     match: sessionMatch,
     player: sessionPlayer,
@@ -144,5 +160,10 @@ errorForm.onsubmit = async e => {
   drawGrid();
   loadEntries();
 };
+
+document addEventListener('DOMContentLoaded', () => {
+  const today = new.Date().toISOString.split('T')[0];
+  document.getElementById('sessionDate').value = today;
+})
 
 loadEntries();
