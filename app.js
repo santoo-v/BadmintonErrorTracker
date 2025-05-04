@@ -161,9 +161,9 @@ errorForm.onsubmit = async e => {
   loadEntries();
 };
 
-document addEventListener('DOMContentLoaded', () => {
-  const today = new.Date().toISOString.split('T')[0];
+document.addEventListener('DOMContentLoaded', () => {
+  const today = new Date().toISOString().split('T')[0];
   document.getElementById('sessionDate').value = today;
-})
+});
 
 loadEntries();
