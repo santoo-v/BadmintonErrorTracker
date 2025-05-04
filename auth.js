@@ -27,15 +27,24 @@ const logoutBtn = document.getElementById("logoutBtn");
 const userInfo = document.getElementById("userInfo");
 const mainApp = document.getElementById("mainApp");
 
+
 loginBtn.onclick = () => {
-  signInWithPopup(auth, provider)
-    .then((result) => {
-      const user = result.user;
-      console.log("Logged in as", user.displayName);
-    })
-    .catch((error) => {
-      alert("Login failed: " + error.message);
-    });
+  loginBtn.onclick = () => {
+    signInWithPopup(auth, provider)
+      .then((result) => {
+        const user = result.user;
+        window.currentUser = user;
+        userInfo.textContent = `👤 ${user.displayName}`;
+        loginBtn.style.display = "none";
+        logoutBtn.style.display = "inline";
+        mainApp.style.display = "block";
+        document.getElementById('createProfileBtn').style.display = 'inline-block';
+      })
+      .catch((error) => {
+        alert("Login failed: " + error.message);
+      });
+  };
+  
 };
 
 logoutBtn.onclick = () => {
@@ -51,11 +60,13 @@ onAuthStateChanged(auth, (user) => {
     logoutBtn.style.display = "inline";
     mainApp.style.display = "block";
     window.currentUser = user;
+    document.getElementById('createProfileBtn').style.display = 'inline-block';
   } else {
     userInfo.textContent = "Not logged in";
     loginBtn.style.display = "inline";
     logoutBtn.style.display = "none";
     mainApp.style.display = "none";
     window.currentUser = null;
+    document.getElementById('createProfileBtn').style.display = 'none';
   }
 });

@@ -1,3 +1,4 @@
+<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
@@ -11,6 +12,7 @@
   <!-- Auth Controls -->
   <div id="authControls" class="auth-controls">
     <span id="userInfo"></span>
+    <button id="createProfileBtn" style="display:none">Create Player Profile</button>
     <button id="loginBtn">Login with Google</button>
     <button id="logoutBtn" class="danger" style="display:none;">Logout</button>
   </div>
@@ -27,8 +29,6 @@
     <div id="playerManager">
       <label for="playerSelect">Select Player:</label>
       <select id="playerSelect"></select>
-      <input type="text" id="newPlayerName" placeholder="Add new player">
-      <button id="addPlayerBtn">Add Player</button>
     </div>
 
     <!-- Record Tab -->
@@ -85,6 +85,22 @@
         </thead>
         <tbody></tbody>
       </table>
+    </div>
+  </div>
+
+  <!-- Player Profile Modal -->
+  <div id="playerModal" class="modal" style="display:none;">
+    <div class="modal-content">
+      <span id="closeModal" class="close">&times;</span>
+      <h2>Create Player Profile</h2>
+      <form id="profileForm">
+        <label>Name (required): <input type="text" id="profileName" required></label><br>
+        <label>Age (optional): <input type="number" id="profileAge"></label><br>
+        <label>City (optional): <input type="text" id="profileCity"></label><br><br>
+        <button type="submit">Save Profile</button>
+      </form>
+      <h3>Existing Player Profiles:</h3>
+      <ul id="existingPlayers"></ul>
     </div>
   </div>
 

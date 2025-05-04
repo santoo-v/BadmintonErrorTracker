@@ -9,7 +9,8 @@ import {
   addDoc,
   setDoc,
   doc,
-  serverTimestamp
+  serverTimestamp,
+  deleteDoc
 } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
 const firebaseConfig = {
@@ -25,8 +26,13 @@ const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 
 const playerSelect = document.getElementById('playerSelect');
-const newPlayerName = document.getElementById('newPlayerName');
-const addPlayerBtn = document.getElementById('addPlayerBtn');
+const createProfileBtn = document.getElementById('createProfileBtn');
+const modal = document.getElementById('playerModal');
+const closeModal = document.getElementById('closeModal');
+const profileForm = document.getElementById('profileForm');
+const profileName = document.getElementById('profileName');
+const profileAge = document.getElementById('profileAge');
+const profileCity = document.getElementById('profileCity');
 
 const recordTabBtn = document.getElementById('recordTabBtn');
 const dataTabBtn = document.getElementById('dataTabBtn');
@@ -68,12 +74,17 @@ insightsTabBtn.onclick = () => switchTab('insights');
 
 function populatePlayers(players) {
   playerSelect.innerHTML = '';
+  const allOpt = document.createElement('option');
+  allOpt.textContent = 'Show All';
+  allOpt.value = '';
+  playerSelect.appendChild(allOpt);
   players.forEach(name => {
     const opt = document.createElement('option');
     opt.textContent = name;
+    opt.value = name;
     playerSelect.appendChild(opt);
   });
-  if (players.length) sessionPlayer = players[0];
+  sessionPlayer = '';
 }
 
 async function loadPlayerProfiles() {
@@ -84,17 +95,60 @@ async function loadPlayerProfiles() {
   populatePlayers(names);
 }
 
-addPlayerBtn.onclick = async () => {
-  const name = newPlayerName.value.trim();
-  if (!name || !window.currentUser) return;
-  const docRef = doc(db, 'users', window.currentUser.uid, 'players', name);
-  await setDoc(docRef, { created: serverTimestamp() });
-  newPlayerName.value = '';
-  loadPlayerProfiles();
-};
-
 playerSelect.onchange = () => {
   sessionPlayer = playerSelect.value;
+};
+
+createProfileBtn.onclick = async () => {
+  if (!window.currentUser) return;
+  modal.style.display = 'block';
+
+  // Load existing player profiles into modal list
+  const list = document.getElementById('existingPlayers');
+  list.innerHTML = '';
+  const docRef = doc(db, 'users', window.currentUser.uid);
+  const docSnap = await getDocs(collection(docRef, 'players'));
+
+  docSnap.docs.forEach(d => {
+    const li = document.createElement('li');
+    const data = d.data();
+    li.innerHTML = `
+      ${d.id}${data.city ? ' - ' + data.city : ''}${data.age ? ' (' + data.age + ')' : ''}
+      <button class="delete-profile" data-name="${d.id}" title="Delete">×</button>
+    `;
+    list.appendChild(li);
+  });
+
+  // Add delete handler for each button
+  list.querySelectorAll('.delete-profile').forEach(btn => {
+    btn.onclick = async () => {
+      const name = btn.dataset.name;
+      if (!confirm(`Delete profile for ${name}?`)) return;
+      const ref = doc(db, 'users', window.currentUser.uid, 'players', name);
+      await deleteDoc(ref);
+      await loadPlayerProfiles(); // refresh dropdown
+      createProfileBtn.click();   // refresh modal
+    };
+  });
+};
+
+
+closeModal.onclick = () => {
+  modal.style.display = 'none';
+};
+
+profileForm.onsubmit = async e => {
+  e.preventDefault();
+  if (!window.currentUser) return;
+  const name = profileName.value.trim();
+  const age = profileAge.value.trim();
+  const city = profileCity.value.trim();
+  if (!name) return alert('Player name is required');
+  const docRef = doc(db, 'users', window.currentUser.uid, 'players', name);
+  await setDoc(docRef, { age, city, created: serverTimestamp() });
+  modal.style.display = 'none';
+  profileForm.reset();
+  loadPlayerProfiles();
 };
 
 canvas.addEventListener('click', e => {
@@ -135,7 +189,7 @@ async function loadEntries() {
   const snap = await getDocs(q);
   entries = snap.docs
     .map(doc => ({ id: doc.id, ...doc.data() }))
-    .filter(e => e.uid === window.currentUser.uid);
+    .filter(e => e.uid === window.currentUser.uid && (!sessionPlayer || e.player === sessionPlayer));
   tableBody.innerHTML = '';
   entries.forEach(e => {
     const tr = document.createElement('tr');
