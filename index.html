@@ -19,16 +19,24 @@
   <nav class="tabs">
     <button id="recordTabBtn" class="tab-btn active">Record Errors</button>
     <button id="dataTabBtn" class="tab-btn">View Data</button>
+    <button id="insightsTabBtn" class="tab-btn">Insights</button>
   </nav>
 
   <div class="container" id="mainApp" style="display:none;">
+    <!-- Player Profile Manager -->
+    <div id="playerManager">
+      <label for="playerSelect">Select Player:</label>
+      <select id="playerSelect"></select>
+      <input type="text" id="newPlayerName" placeholder="Add new player">
+      <button id="addPlayerBtn">Add Player</button>
+    </div>
+
     <!-- Record Tab -->
     <div id="recordTab">
       <form id="sessionForm" class="grid-form">
         <div class="form-grid">
           <label>Date: <input type="date" id="sessionDate" required></label>
           <label>Match: <input type="text" id="sessionMatch" placeholder="Team A vs Team B" required></label>
-          <label>Player: <input type="text" id="sessionPlayer" placeholder="Player Name" required></label>
           <label>Set #: <input type="number" id="sessionSet" min="1" required></label>
         </div>
         <button type="submit" id="startBtn">Start</button>

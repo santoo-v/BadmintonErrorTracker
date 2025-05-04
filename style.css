@@ -111,4 +111,43 @@ body {
     border: 1px solid #999;
     background: #ffffff;
   }
-  
+
+/* Placeholder insights tab styling */
+#insightsTab {
+  padding: 1rem;
+  background-color: #fff;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  text-align: center;
+  margin-top: 1rem;
+  display: none;
+}
+
+#insightsTab h2 {
+  color: #333;
+  margin-bottom: 0.5rem;
+}
+
+#insightsTab p {
+  font-style: italic;
+  color: #666;
+}
+
+/* Player profile management */
+#playerManager {
+  margin: 1rem auto;
+  text-align: center;
+  background: #f1f1f1;
+  padding: 1rem;
+  border-radius: 8px;
+  border: 1px solid #ccc;
+  max-width: 500px;
+}
+
+#playerManager label,
+#playerManager select,
+#playerManager input,
+#playerManager button {
+  display: inline-block;
+  margin: 0.25rem;
+}

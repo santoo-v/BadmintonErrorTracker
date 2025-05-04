@@ -1,3 +1,4 @@
+// app.js
 import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
 import {
   getFirestore,
@@ -6,7 +7,7 @@ import {
   orderBy,
   getDocs,
   addDoc,
-  deleteDoc,
+  setDoc,
   doc,
   serverTimestamp
 } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
@@ -23,8 +24,14 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 
+const playerSelect = document.getElementById('playerSelect');
+const newPlayerName = document.getElementById('newPlayerName');
+const addPlayerBtn = document.getElementById('addPlayerBtn');
+
 const recordTabBtn = document.getElementById('recordTabBtn');
-const dataTabBtn   = document.getElementById('dataTabBtn');
+const dataTabBtn = document.getElementById('dataTabBtn');
+const insightsTabBtn = document.getElementById('insightsTabBtn');
+
 const sessionForm  = document.getElementById('sessionForm');
 const recSection   = document.getElementById('recordingSection');
 const currSess     = document.getElementById('currentSession');
@@ -46,13 +53,60 @@ const ROWS = 8, COLS = 5;
 
 function switchTab(tab) {
   document.getElementById('recordTab').style.display = tab === 'record' ? '' : 'none';
-  document.getElementById('dataTab').style.display   = tab === 'data'   ? '' : 'none';
+  document.getElementById('dataTab').style.display = tab === 'data' ? '' : 'none';
+  document.getElementById('insightsTab').style.display = tab === 'insights' ? '' : 'none';
+
   recordTabBtn.classList.toggle('active', tab === 'record');
-  dataTabBtn.classList.toggle('active',    tab === 'data');
+  dataTabBtn.classList.toggle('active', tab === 'data');
+  insightsTabBtn.classList.toggle('active', tab === 'insights');
   if (tab === 'record') drawGrid();
 }
+
 recordTabBtn.onclick = () => switchTab('record');
-dataTabBtn.onclick   = () => switchTab('data');
+dataTabBtn.onclick = () => switchTab('data');
+insightsTabBtn.onclick = () => switchTab('insights');
+
+function populatePlayers(players) {
+  playerSelect.innerHTML = '';
+  players.forEach(name => {
+    const opt = document.createElement('option');
+    opt.textContent = name;
+    playerSelect.appendChild(opt);
+  });
+  if (players.length) sessionPlayer = players[0];
+}
+
+async function loadPlayerProfiles() {
+  if (!window.currentUser) return;
+  const docRef = doc(db, 'users', window.currentUser.uid);
+  const docSnap = await getDocs(collection(docRef, 'players'));
+  const names = docSnap.docs.map(d => d.id);
+  populatePlayers(names);
+}
+
+addPlayerBtn.onclick = async () => {
+  const name = newPlayerName.value.trim();
+  if (!name || !window.currentUser) return;
+  const docRef = doc(db, 'users', window.currentUser.uid, 'players', name);
+  await setDoc(docRef, { created: serverTimestamp() });
+  newPlayerName.value = '';
+  loadPlayerProfiles();
+};
+
+playerSelect.onchange = () => {
+  sessionPlayer = playerSelect.value;
+};
+
+canvas.addEventListener('click', e => {
+  const rect = canvas.getBoundingClientRect();
+  const x = e.clientX - rect.left, y = e.clientY - rect.top;
+  const cellW = canvas.width / COLS, cellH = canvas.height / ROWS;
+  const col = Math.floor(x / cellW), row = Math.floor(y / cellH);
+  selZone = row * COLS + col;
+  selZoneSpan.textContent = `R${row+1}C${col+1}`;
+  addErrorBtn.disabled = false;
+  drawGrid();
+});
 
 function drawGrid() {
   ctx.clearRect(0, 0, canvas.width, canvas.height);
@@ -74,17 +128,6 @@ function drawGrid() {
 }
 
 courtImg.onload = () => drawGrid();
-
-canvas.addEventListener('click', e => {
-  const rect = canvas.getBoundingClientRect();
-  const x = e.clientX - rect.left, y = e.clientY - rect.top;
-  const cellW = canvas.width / COLS, cellH = canvas.height / ROWS;
-  const col = Math.floor(x / cellW), row = Math.floor(y / cellH);
-  selZone = row * COLS + col;
-  selZoneSpan.textContent = `R${row+1}C${col+1}`;
-  addErrorBtn.disabled = false;
-  drawGrid();
-});
 
 async function loadEntries() {
   if (!window.currentUser) return;
@@ -121,7 +164,6 @@ sessionForm.onsubmit = e => {
   e.preventDefault();
   sessionDate   = document.getElementById('sessionDate').value;
   sessionMatch  = document.getElementById('sessionMatch').value;
-  sessionPlayer = document.getElementById('sessionPlayer').value;
   sessionSet    = document.getElementById('sessionSet').value;
   currSess.textContent = `${sessionDate} | ${sessionMatch} | ${sessionPlayer} | Set ${sessionSet}`;
   sessionForm.style.display = 'none';
@@ -141,9 +183,9 @@ finishBtn.onclick = () => {
 
 errorForm.onsubmit = async e => {
   e.preventDefault();
-  if (!sessionDate || selZone === null) return alert('Select a court cell');
+  if (!sessionDate || selZone === null || !window.currentUser) return alert('You must be logged in and select a court cell.');
   const entry = {
-    uid: window.currentUser.uid, 
+    uid: window.currentUser.uid,
     date: sessionDate,
     match: sessionMatch,
     player: sessionPlayer,
@@ -164,6 +206,7 @@ errorForm.onsubmit = async e => {
 document.addEventListener('DOMContentLoaded', () => {
   const today = new Date().toISOString().split('T')[0];
   document.getElementById('sessionDate').value = today;
+  loadPlayerProfiles();
+  loadEntries();
+  switchTab('record');
 });
-
-loadEntries();
