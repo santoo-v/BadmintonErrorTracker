@@ -2,10 +2,7 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
 import {
   getAuth,
-  signInWithPopup,
-  GoogleAuthProvider,
-  onAuthStateChanged,
-  signOut
+  GoogleAuthProvider
 } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
 
 // Your Firebase config (same as in app.js)
@@ -22,52 +19,4 @@ const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const provider = new GoogleAuthProvider();
 
-const loginBtn = document.getElementById("loginBtn");
-const logoutBtn = document.getElementById("logoutBtn");
-const userInfo = document.getElementById("userInfo");
-const mainApp = document.getElementById("mainApp");
-
-
-loginBtn.onclick = () => {
-  loginBtn.onclick = () => {
-    signInWithPopup(auth, provider)
-      .then((result) => {
-        const user = result.user;
-        window.currentUser = user;
-        userInfo.textContent = `👤 ${user.displayName}`;
-        loginBtn.style.display = "none";
-        logoutBtn.style.display = "inline";
-        mainApp.style.display = "block";
-        document.getElementById('createProfileBtn').style.display = 'inline-block';
-      })
-      .catch((error) => {
-        alert("Login failed: " + error.message);
-      });
-  };
-  
-};
-
-logoutBtn.onclick = () => {
-  signOut(auth).then(() => {
-    console.log("Logged out");
-  });
-};
-
-onAuthStateChanged(auth, (user) => {
-  if (user) {
-    userInfo.textContent = `👤 ${user.displayName}`;
-    loginBtn.style.display = "none";
-    logoutBtn.style.display = "inline";
-    mainApp.style.display = "block";
-    window.currentUser = user;
-    document.getElementById('createProfileBtn').style.display = 'inline-block';
-    loadPlayerProfiles(); 
-  } else {
-    userInfo.textContent = "Not logged in";
-    loginBtn.style.display = "inline";
-    logoutBtn.style.display = "none";
-    mainApp.style.display = "none";
-    window.currentUser = null;
-    document.getElementById('createProfileBtn').style.display = 'none';
-  }
-});
+export {auth, provider}

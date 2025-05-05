@@ -191,3 +191,17 @@ body {
   color: darkred;
 }
 
+.action-buttons {
+  font-weight: bold;
+  font-size: 1.1rem;
+  background-color: hwb(133 60% 9%);  /* Bootstrap green */
+  color: white;
+  border: none;
+  padding: 9.64px 16px;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+.action-buttons:hover {
+  background-color: hsl(133, 80%, 35%); /* darker green on hover */
+}

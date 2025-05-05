@@ -22,6 +22,13 @@ const firebaseConfig = {
   appId: "1:188991740256:web:6b5b9d0c7804766266a605"
 };
 
+import {auth, provider} from './auth.js';
+import {
+  onAuthStateChanged,
+  signInWithPopup,
+  signOut
+} from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 
@@ -34,9 +41,50 @@ const profileName = document.getElementById('profileName');
 const profileAge = document.getElementById('profileAge');
 const profileCity = document.getElementById('profileCity');
 
+
+const loginBtn = document.getElementById("loginBtn");
+const logoutBtn = document.getElementById("logoutBtn");
+const userInfo = document.getElementById("userInfo");
+const mainApp = document.getElementById("mainApp");
+
+
+loginBtn.onclick = () => {
+  signInWithPopup(auth, provider)
+    .then((result) => {
+      console.log("Signed in:", result.user.displayName);
+    })
+    .catch((error) => {
+      alert("Login failed: " + error.message);
+    });
+};
+
+logoutBtn.onclick = () => {
+  signOut(auth);
+};
+
+onAuthStateChanged(auth, (user) => {
+  if (user) {
+    window.currentUser = user;
+    userInfo.textContent = `👤 ${user.displayName}`;
+    loginBtn.style.display = "none";
+    logoutBtn.style.display = "inline";
+    mainApp.style.display = "block";
+    document.getElementById('createProfileBtn').style.display = 'inline-block';
+    loadPlayerProfiles(); //
+  } else {
+    userInfo.textContent = "Not logged in";
+    loginBtn.style.display = "inline";
+    logoutBtn.style.display = "none";
+    mainApp.style.display = "none";
+    window.currentUser = null;
+    document.getElementById('createProfileBtn').style.display = 'none';
+  }
+});
+
 const recordTabBtn = document.getElementById('recordTabBtn');
 const dataTabBtn = document.getElementById('dataTabBtn');
 const insightsTabBtn = document.getElementById('insightsTabBtn');
+const playerManager = document.getElementById('playerManager');
 
 const sessionForm  = document.getElementById('sessionForm');
 const recSection   = document.getElementById('recordingSection');
@@ -60,13 +108,19 @@ const ROWS = 8, COLS = 5;
 function switchTab(tab) {
   document.getElementById('recordTab').style.display = tab === 'record' ? '' : 'none';
   document.getElementById('dataTab').style.display = tab === 'data' ? '' : 'none';
-  document.getElementById('insightsTab').style.display = tab === 'insights' ? '' : 'none';
+  const insightsEl = document.getElementById('insightsTab');
+  if (insightsEl) insightsEl.style.display = tab === 'insights' ? '' : 'none';
 
   recordTabBtn.classList.toggle('active', tab === 'record');
   dataTabBtn.classList.toggle('active', tab === 'data');
   insightsTabBtn.classList.toggle('active', tab === 'insights');
-  if (tab === 'record') drawGrid();
-}
+  if (tab === 'record') {
+    sessionForm.style.display = 'none'; // hide form during recording
+    drawGrid();
+  } else {
+    sessionForm.style.display = 'flex'; // restore form in other tabs
+  }
+  }
 
 recordTabBtn.onclick = () => switchTab('record');
 dataTabBtn.onclick = () => switchTab('data');
@@ -93,6 +147,8 @@ async function loadPlayerProfiles() {
   const docSnap = await getDocs(collection(docRef, 'players'));
   const names = docSnap.docs.map(d => d.id);
   populatePlayers(names);
+  console.log("Loading player profiles for:", window.currentUser?.uid);
+  console.log("Players found:", names);
 }
 
 playerSelect.onchange = () => {
@@ -131,7 +187,6 @@ createProfileBtn.onclick = async () => {
     };
   });
 };
-
 
 closeModal.onclick = () => {
   modal.style.display = 'none';
@@ -220,6 +275,7 @@ sessionForm.onsubmit = e => {
   sessionMatch  = document.getElementById('sessionMatch').value;
   sessionSet    = document.getElementById('sessionSet').value;
   currSess.textContent = `${sessionDate} | ${sessionMatch} | ${sessionPlayer} | Set ${sessionSet}`;
+  playerManager.style.display = 'none';
   sessionForm.style.display = 'none';
   recSection.style.display = 'flex';
   drawGrid();
@@ -232,6 +288,7 @@ finishBtn.onclick = () => {
   recSection.style.display = 'none';
   selZoneSpan.textContent = 'None';
   addErrorBtn.disabled = true;
+  playerManager.style.display = 'block'
   loadEntries();
 };
 
@@ -264,3 +321,7 @@ document.addEventListener('DOMContentLoaded', () => {
   loadEntries();
   switchTab('record');
 });
+
+
+
+

@@ -39,14 +39,13 @@
           <label>Match: <input type="text" id="sessionMatch" placeholder="Team A vs Team B" required></label>
           <label>Set #: <input type="number" id="sessionSet" min="1" required></label>
         </div>
-        <button type="submit" id="startBtn">Start</button>
+        <button type="submit" id="startBtn" class="action-buttons">Start</button>
       </form>
 
       <div id="recordingSection" class="recording-section">
         <div class="recording-header">
           <p>Recording for: <span id="currentSession"></span></p>
-          <button id="finishBtn">Finish</button>
-          <button id="deleteAllBtn" class="danger">Delete All Records</button>
+          <button id="finishBtn" class="action-buttons">Finish</button>
         </div>
 
         <form id="errorForm" class="error-form">
@@ -77,6 +76,7 @@
     <!-- Data Tab -->
     <div id="dataTab" style="display:none">
       <h2>Logged Errors</h2>
+      <button id="deleteAllBtn" class="danger">Delete All Records</button>
       <table id="errorTable">
         <thead>
           <tr>
@@ -86,6 +86,12 @@
         <tbody></tbody>
       </table>
     </div>
+  </div>
+
+  <!-- Insights Tab -->
+  <div id="insightsTab" style="display: none;">
+    <h2> Insights </h2>
+    <p> Coming soon....</p>
   </div>
 
   <!-- Player Profile Modal -->
